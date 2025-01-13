@@ -4,8 +4,8 @@ object Form1: TForm1
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'totalbattle search stuff'
-  ClientHeight = 290
-  ClientWidth = 650
+  ClientHeight = 289
+  ClientWidth = 646
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -17,13 +17,10 @@ object Form1: TForm1
     Left = 0
     Top = 0
     Width = 649
-    Height = 290
+    Height = 289
     Align = alLeft
     Caption = 'Panel1'
     TabOrder = 0
-    ExplicitLeft = 16
-    ExplicitTop = -56
-    ExplicitHeight = 651
     object Label1: TLabel
       Left = 8
       Top = 127
@@ -142,10 +139,13 @@ object Form1: TForm1
       MaxValue = 100
       MinValue = 40
       TabOrder = 6
-      Value = 55
+      Value = 80
     end
   end
   object OpenPictureDialog1: TOpenPictureDialog
+    Filter = 
+      'Image Files|*.bmp;*.jpg;*.jpeg;*.png|BMP Files|*.bmp|JPEG Files|' +
+      '*.jpg;*.jpeg|PNG Files|*.png'
     Left = 24
     Top = 216
   end

@@ -3,6 +3,7 @@ unit Unit1;
 interface
 
 uses
+  Vcl.Imaging.pngimage, Vcl.Imaging.jpeg,
 
   System.Math,
 
@@ -85,23 +86,39 @@ end;
 
 procedure TForm1.Button1Click(Sender: TObject);
 var
-  pict: TPicture;
+
+  Image: TGraphic;
 begin
+
   if OpenPictureDialog1.Execute then
   begin
-    pict := TPicture.Create;
-    try
-      pict.LoadFromFile(OpenPictureDialog1.FileName);
-      Image1.Picture.Assign(pict);
+    if LowerCase(ExtractFileExt(OpenPictureDialog1.FileName)) = '.bmp' then
+      Image := TBitmap.Create
+    else if (LowerCase(ExtractFileExt(OpenPictureDialog1.FileName)) = '.jpg') or
+      (LowerCase(ExtractFileExt(OpenPictureDialog1.FileName)) = '.jpeg') then
+      Image := TJPEGImage.Create
+    else if LowerCase(ExtractFileExt(OpenPictureDialog1.FileName)) = '.png' then
+      Image := TPngImage.Create
+    else
+      Image := nil;
 
-      templateFileName := OpenPictureDialog1.FileName;
-      Edit1.Text := templateFileName;
+    if Assigned(Image) then
+    begin
+      try
+        Image.LoadFromFile(OpenPictureDialog1.FileName);
+        Image1.Picture.Graphic := Image;
 
-    finally
-      pict.Free;
+        // Image1.Picture.Assign(Image);
+
+        templateFileName := OpenPictureDialog1.FileName;
+        Edit1.Text := templateFileName;
+
+      finally
+        Image.Free;
+      end;
     end;
-
   end;
+
 end;
 
 procedure TForm1.Button3Click(Sender: TObject);
@@ -115,6 +132,9 @@ begin
     exit;
 
   matchCount := PerformTemplateMatching(templateFileName, threshold);
+  if isInfinite(matchCount) then
+    exit;
+
   Form1.Caption := matchCount.ToString;
   if matchCount > threshold then
     playBeep();
@@ -134,14 +154,14 @@ function IsAppFocused: Boolean;
 var
   ForegroundWindow: HWND;
   ForegroundProcessID: DWORD;
-CurrentProcessID:  DWORD;
+  CurrentProcessID: DWORD;
 begin
   ForegroundWindow := GetForegroundWindow;
   GetWindowThreadProcessId(ForegroundWindow, @ForegroundProcessID);
   CurrentProcessID := GetCurrentProcessId;
-  Result := (ForegroundProcessID =   CurrentProcessID) ;
+  Result := (ForegroundProcessID = CurrentProcessID);
 
-//    or(GetForegroundWindow = Application.Handle) or (GetActiveWindow = Application.Handle);
+  // or(GetForegroundWindow = Application.Handle) or (GetActiveWindow = Application.Handle);
 end;
 
 procedure TForm1.Timer1Timer(Sender: TObject);

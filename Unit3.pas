@@ -72,7 +72,7 @@ begin
 
   ResultImg := pCvMatImageCreate(ResultWidth, ResultHeight, CV_8UC3); // CV_32FC1
 
-  pcvmatchTemplate(SourceImg, TemplateImg, ResultImg, ord(TM_CCOEFF_NORMED));
+  pcvmatchTemplate(SourceImg, TemplateImg, ResultImg, ord(TM_CCOEFF_NORMED),TemplateImg);
   Result := ResultImg;
 end;
 
