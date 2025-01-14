@@ -4,8 +4,8 @@ object Form1: TForm1
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'totalbattle search stuff'
-  ClientHeight = 289
-  ClientWidth = 646
+  ClientHeight = 261
+  ClientWidth = 605
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -17,10 +17,11 @@ object Form1: TForm1
     Left = 0
     Top = 0
     Width = 649
-    Height = 289
+    Height = 261
     Align = alLeft
     Caption = 'Panel1'
     TabOrder = 0
+    ExplicitHeight = 288
     object Label1: TLabel
       Left = 8
       Top = 127
@@ -43,7 +44,7 @@ object Form1: TForm1
       Caption = 'miliseconds'
     end
     object Label3: TLabel
-      Left = 11
+      Left = 28
       Top = 157
       Width = 47
       Height = 15
@@ -52,22 +53,22 @@ object Form1: TForm1
     object Button1: TButton
       Left = 8
       Top = 8
-      Width = 208
+      Width = 227
       Height = 25
       Caption = 'Load image to search'
       TabOrder = 0
       OnClick = Button1Click
     end
     object CheckBox1: TCheckBox
-      Left = 64
+      Left = 103
       Top = 39
-      Width = 142
+      Width = 132
       Height = 31
       Caption = 'Auto Scan'
       Checked = True
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -24
+      Font.Height = -21
       Font.Name = 'Segoe UI'
       Font.Style = [fsBold]
       ParentFont = False
@@ -78,7 +79,7 @@ object Form1: TForm1
     object Edit1: TEdit
       Left = 8
       Top = 95
-      Width = 208
+      Width = 227
       Height = 23
       ReadOnly = True
       TabOrder = 2
@@ -97,16 +98,15 @@ object Form1: TForm1
     object Memo1: TMemo
       Left = 241
       Top = 9
-      Width = 400
-      Height = 273
+      Width = 360
+      Height = 248
       Lines.Strings = (
         '- zoom in to 25%'
         '- load a image to search'
-        '- activate the '#39'SCAN'#39' checkbox'
+        '- activate the '#39'AUTO SCAN'#39' checkbox'
         ''
         ''
-        ''
-        'TO use any other image'
+        'TO capture any other image'
         ''
         '- zoom to 25%'
         '- use any capture image tool to capture the item you want, '
@@ -114,18 +114,16 @@ object Form1: TForm1
         '- make sure it do not contain any tile/terrain border'
         '- keep only the pixels inside the object you want to capture'
         '- do not rezise or stretch the image'
-        
-          '- the tool will find an exact match save it as bitmap format ( B' +
-          'MP )')
+        '- save it as PNG, JPG or BMP')
       ReadOnly = True
       ScrollBars = ssBoth
       TabOrder = 4
       WantReturns = False
     end
     object Button3: TButton
-      Left = 81
-      Top = 200
-      Width = 138
+      Left = 4
+      Top = 184
+      Width = 71
       Height = 26
       Caption = 'Force scan'
       TabOrder = 5
@@ -139,7 +137,7 @@ object Form1: TForm1
       MaxValue = 100
       MinValue = 40
       TabOrder = 6
-      Value = 80
+      Value = 65
     end
   end
   object OpenPictureDialog1: TOpenPictureDialog

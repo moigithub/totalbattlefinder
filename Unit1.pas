@@ -128,16 +128,20 @@ var
   threshold: single;
 begin
   threshold := seThreshold.Value / 100;
-  if templateFileName = '' then
+  if templateFileName = '' then begin
+    Button1.Click;
     exit;
+  end;
 
   matchCount := PerformTemplateMatching(templateFileName, threshold);
-  if isInfinite(matchCount) then
+  if isInfinite(matchCount) then   begin
     exit;
+  end;
 
-  Form1.Caption := matchCount.ToString;
+  Form1.Caption := floatTostr(matchCount);
   if matchCount > threshold then
     playBeep();
+
 end;
 
 procedure TForm1.CheckBox1Click(Sender: TObject);

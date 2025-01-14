@@ -87,6 +87,8 @@ var
   cvstr: CvString_t;
   Bitmap: TBitmap;
 begin
+  result:=0;
+
   MinLoc := pCvPointCreate();
   MaxLoc := pCvPointCreate();
   pcvminMaxLoc(ResultImg, @MinVal, @MaxVal, MinLoc, MaxLoc, nil);
@@ -372,6 +374,8 @@ var
   SourceImg, TemplateImg, ResultImg: pCvMat_t;
   TemplateFileName: string;
 begin
+  result:=0;
+
   if FileName = '' then
     exit;
 

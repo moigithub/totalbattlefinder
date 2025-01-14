@@ -2,19 +2,19 @@
 <BorlandProject>
 	<Transactions>
     <Transaction>2025/01/09 18:44:53.000.620,=g:\delphiprojs\Unit1.pas</Transaction>
-    <Transaction>2025/01/09 18:56:24.000.947,g:\delphiprojs\Unit1.pas=G:\delphiprojs\opencvmerc\Unit1.pas</Transaction>
-    <Transaction>2025/01/09 18:56:24.000.947,g:\delphiprojs\Unit1.dfm=G:\delphiprojs\opencvmerc\Unit1.dfm</Transaction>
-    <Transaction>2025/01/09 18:56:27.000.167,g:\delphiprojs\Project1.dproj=G:\delphiprojs\opencvmerc\Project1.dproj</Transaction>
+    <Transaction>2025/01/09 18:56:24.000.947,G:\delphiprojs\opencvmerc\Unit1.pas=g:\delphiprojs\Unit1.pas</Transaction>
+    <Transaction>2025/01/09 18:56:24.000.947,G:\delphiprojs\opencvmerc\Unit1.dfm=g:\delphiprojs\Unit1.dfm</Transaction>
+    <Transaction>2025/01/09 18:56:27.000.167,G:\delphiprojs\opencvmerc\Project1.dproj=g:\delphiprojs\Project1.dproj</Transaction>
     <Transaction>2025/01/10 18:22:25.000.851,=G:\delphiprojs\opencvmerc\Unit2.pas</Transaction>
     <Transaction>2025/01/10 19:42:19.000.682,=G:\delphiprojs\opencvmerc\Unit3.pas</Transaction>
     <Transaction>2025/01/11 16:04:01.000.601,=G:\delphiprojs\ocvWrapper46\Delphi\OPENCVWrapper.pas</Transaction>
-    <Transaction>2025/01/11 16:05:15.000.179,G:\delphiprojs\ocvWrapper46\Delphi\OPENCVWrapper.pas=G:\delphiprojs\opencvmerc\OPENCVWrapper.pas</Transaction>
+    <Transaction>2025/01/11 16:05:15.000.179,G:\delphiprojs\opencvmerc\OPENCVWrapper.pas=G:\delphiprojs\ocvWrapper46\Delphi\OPENCVWrapper.pas</Transaction>
     <Transaction>2025/01/11 20:29:42.000.394,=G:\delphiprojs\opencvmerc\Unit3.pas</Transaction>
     <Transaction>2025/01/11 20:53:25.000.592,G:\delphiprojs\opencvmerc\OPENCVWrapper.pas=</Transaction>
     <Transaction>2025/01/11 21:10:07.000.601,=G:\delphiprojs\opencvmerc\Unit4.pas</Transaction>
     <Transaction>2025/01/12 14:06:25.000.087,G:\delphiprojs\opencvmerc\Unit2.pas=</Transaction>
     <Transaction>2025/01/12 14:06:35.000.444,G:\delphiprojs\opencvmerc\Unit4.pas=</Transaction>
-    <Transaction>2025/01/12 19:01:55.476,=G:\delphiprojs\ocvWrapper46\Delphi\OPENCVWrapper.pas</Transaction>
-    <Transaction>2025/01/12 19:02:19.357,G:\delphiprojs\ocvWrapper46\Delphi\OPENCVWrapper.pas=</Transaction>
-  </Transactions>
+    <Transaction>2025/01/12 19:01:55.000.476,=G:\delphiprojs\ocvWrapper46\Delphi\OPENCVWrapper.pas</Transaction>
+    <Transaction>2025/01/12 19:02:19.000.357,G:\delphiprojs\ocvWrapper46\Delphi\OPENCVWrapper.pas=</Transaction>
+  </Transactions>  <BT_BuildType>Debug</BT_BuildType>
 </BorlandProject>
