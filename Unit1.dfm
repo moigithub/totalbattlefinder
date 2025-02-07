@@ -4,24 +4,26 @@ object Form1: TForm1
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'totalbattle search stuff'
-  ClientHeight = 261
-  ClientWidth = 605
+  ClientHeight = 547
+  ClientWidth = 622
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
   TextHeight = 15
   object Panel1: TPanel
     Left = 0
     Top = 0
     Width = 649
-    Height = 261
+    Height = 547
     Align = alLeft
     Caption = 'Panel1'
     TabOrder = 0
-    ExplicitHeight = 288
+    ExplicitHeight = 256
     object Label1: TLabel
       Left = 8
       Top = 127
@@ -50,6 +52,51 @@ object Form1: TForm1
       Height = 15
       Caption = 'Match %'
     end
+    object imgTemplate: TImage
+      Left = 28
+      Top = 376
+      Width = 105
+      Height = 105
+      Proportional = True
+      Stretch = True
+    end
+    object imgDesktop: TImage
+      Left = 168
+      Top = 376
+      Width = 105
+      Height = 105
+      Proportional = True
+      Stretch = True
+    end
+    object imgResult: TImage
+      Left = 312
+      Top = 376
+      Width = 105
+      Height = 105
+      Proportional = True
+      Stretch = True
+    end
+    object Label4: TLabel
+      Left = 40
+      Top = 504
+      Width = 47
+      Height = 15
+      Caption = 'template'
+    end
+    object Label5: TLabel
+      Left = 200
+      Top = 496
+      Width = 85
+      Height = 15
+      Caption = 'desktop capture'
+    end
+    object Label6: TLabel
+      Left = 376
+      Top = 504
+      Width = 29
+      Height = 15
+      Caption = 'result'
+    end
     object Button1: TButton
       Left = 8
       Top = 8
@@ -65,14 +112,12 @@ object Form1: TForm1
       Width = 132
       Height = 31
       Caption = 'Auto Scan'
-      Checked = True
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -21
       Font.Name = 'Segoe UI'
       Font.Style = [fsBold]
       ParentFont = False
-      State = cbChecked
       TabOrder = 1
       OnClick = CheckBox1Click
     end
@@ -90,9 +135,9 @@ object Form1: TForm1
       Width = 56
       Height = 24
       MaxValue = 5000
-      MinValue = 10
+      MinValue = 300
       TabOrder = 3
-      Value = 100
+      Value = 300
       OnChange = seIntervalChange
     end
     object Memo1: TMemo
@@ -139,6 +184,14 @@ object Form1: TForm1
       TabOrder = 6
       Value = 65
     end
+    object CheckBox2: TCheckBox
+      Left = 8
+      Top = 328
+      Width = 97
+      Height = 17
+      Caption = 'CheckBox2'
+      TabOrder = 7
+    end
   end
   object OpenPictureDialog1: TOpenPictureDialog
     Filter = 
@@ -148,7 +201,8 @@ object Form1: TForm1
     Top = 216
   end
   object Timer1: TTimer
-    Interval = 100
+    Enabled = False
+    Interval = 300
     OnTimer = Timer1Timer
     Left = 112
     Top = 240

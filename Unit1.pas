@@ -9,7 +9,7 @@ uses
 
   MMSystem, Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtDlgs, Vcl.ExtCtrls, Vcl.StdCtrls,
-  unit3, Vcl.Samples.Spin;
+  unit3, Vcl.Samples.Spin, syncobjs, OPENCVWrapper, common;
 
 type
   TForm1 = class(TForm)
@@ -27,14 +27,26 @@ type
     Button3: TButton;
     seThreshold: TSpinEdit;
     Label3: TLabel;
+    CheckBox2: TCheckBox;
+    imgTemplate: TImage;
+    imgDesktop: TImage;
+    imgResult: TImage;
+    Label4: TLabel;
+    Label5: TLabel;
+    Label6: TLabel;
     procedure Button1Click(Sender: TObject);
     procedure seIntervalChange(Sender: TObject);
     procedure CheckBox1Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
     { Private declarations }
     templateFileName: string;
+
+    TemplateImg: pCvMat_t;
+    // TemplateImg: TOCVMat;
   public
     { Public declarations }
   end;
@@ -43,6 +55,7 @@ const
   FileName = 'beep.m4a';
 
 var
+  ProcessingLock: TCriticalSection; // Global critical section for thread safety
   Form1: TForm1;
 
 implementation
@@ -86,7 +99,7 @@ end;
 
 procedure TForm1.Button1Click(Sender: TObject);
 var
-
+      sfile,tmp: CvString_t;
   Image: TGraphic;
 begin
 
@@ -113,6 +126,27 @@ begin
         templateFileName := OpenPictureDialog1.FileName;
         Edit1.Text := templateFileName;
 
+        // Load the template image
+        // TemplateFileName := FileName;
+//        self.TemplateImg := LoadImage(templateFileName  );
+
+
+
+  sfile.pstr := PAnsiChar(AnsiString(templateFileName));
+
+  TemplateImg := pCvimread(@sfile, ord(IMREAD_COLOR));
+
+    if (pCvMatGetWidth(TemplateImg) = 0) then
+    begin
+      ShowMessage('Error: image not exists');
+      Exit;
+    end;
+
+//    tmp.pstr:= PAnsiChar(AnsiString('template'));
+//
+//
+//   pCvimshow(@tmp, TemplateImg );
+
       finally
         Image.Free;
       end;
@@ -121,32 +155,74 @@ begin
 
 end;
 
+procedure RunInThread(const AProc: TProc);
+begin
+  TThread.CreateAnonymousThread(AProc).Start;
+end;
+
 procedure TForm1.Button3Click(Sender: TObject);
 var
 
   matchCount: double;
   threshold: single;
+  tmp: CvString_t;
 begin
-  threshold := seThreshold.Value / 100;
-  if templateFileName = '' then begin
-    Button1.Click;
-    exit;
+    if TemplateImg = nil then
+    begin
+      Button1.Click;
+      exit;
+    end;
+
+//        tmp.pstr:= PAnsiChar(AnsiString('template'));
+//
+//
+//   pCvimshow(@tmp, TemplateImg );
+
+
+
+  ProcessingLock.Enter; // Acquire the lock
+  try
+//   outputdebugstring('btn3.click');
+
+    threshold := seThreshold.Value / 100;
+    matchCount := PerformTemplateMatching(TemplateImg, threshold);
+
+    if not isInfinite(matchCount) then
+    begin
+     Form1.Caption := floatTostr(matchCount);
+
+      if matchCount > threshold then
+      begin
+        playBeep();
+
+      end;
+    end;
+
+  finally
+    ProcessingLock.Leave; // Release the lock when done
   end;
-
-  matchCount := PerformTemplateMatching(templateFileName, threshold);
-  if isInfinite(matchCount) then   begin
-    exit;
-  end;
-
-  Form1.Caption := floatTostr(matchCount);
-  if matchCount > threshold then
-    playBeep();
-
 end;
 
 procedure TForm1.CheckBox1Click(Sender: TObject);
 begin
+    if TemplateImg = nil then
+    begin
+      Button1.Click;
+      CheckBox1.Checked:=false;
+      exit;
+    end;
+
   Timer1.Enabled := CheckBox1.Checked;
+end;
+
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  ProcessingLock := TCriticalSection.Create; // Initialize the critical section on form creation
+end;
+
+procedure TForm1.FormDestroy(Sender: TObject);
+begin
+  ProcessingLock.Free; // Free the critical section on form destruction
 end;
 
 procedure TForm1.seIntervalChange(Sender: TObject);

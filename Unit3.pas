@@ -5,9 +5,9 @@ interface
 uses Vcl.Imaging.jpeg, Vcl.Controls, Vcl.ExtCtrls,
   OPENCVWrapper, Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
   Vcl.Forms, Vcl.Dialogs, Vcl.ExtDlgs, Vcl.Graphics, Vcl.StdCtrls,
-  System.Generics.Collections;
+  System.Generics.Collections, common;
 
-function PerformTemplateMatching(FileName: string; threshold: single): double;
+function PerformTemplateMatching(TemplateImg: pCvMat_t; threshold: single): double;
 
 implementation
 
@@ -24,393 +24,116 @@ type
 var
   NMS_THRES: single = 0.5;
 
-procedure CaptureDesktop(var Bitmap: TBitmap);
-var
-  ScreenDC: HDC;
-  ScreenWidth, ScreenHeight: Integer;
-begin
-  ScreenWidth := GetSystemMetrics(SM_CXSCREEN);
-  ScreenHeight := GetSystemMetrics(SM_CYSCREEN);
-
-  // Bitmap.SetSize(ScreenWidth, ScreenHeight);
-  Bitmap.Width := ScreenWidth;
-  Bitmap.Height := ScreenHeight;
-  Bitmap.PixelFormat := pf24bit;
-
-  ScreenDC := GetDC(0);
-  try
-    BitBlt(Bitmap.Canvas.Handle, 0, 0, ScreenWidth, ScreenHeight, ScreenDC, 0, 0, SRCCOPY);
-  finally
-    ReleaseDC(0, ScreenDC);
-  end;
-end;
-
-function LoadImage(const FileName: string): pCvMat_t;
-var
-
-  sfile: CvString_t;
-begin
-  sfile.pstr := PAnsiChar(AnsiString(FileName));
-
-  Result := pCvimread(@sfile, ord(IMREAD_COLOR));
-  if Result = nil then
-    raise Exception.Create('Failed to load image: ' + FileName);
-end;
-
-function MatchTemplate(const SourceImg, TemplateImg: pCvMat_t): pCvMat_t;
-var
-  ResultImg: pCvMat_t;
-  ResultWidth, ResultHeight: Integer;
-begin
-
-  // pCvCvtColor(internImage, colorImg, Ord(COLOR_GRAY2BGR));
-  // MatImage2Bitmap(colorImg, bmp);
-  // pCvMatDelete(colorImg);
-
-  ResultWidth := pCvMatGetWidth(SourceImg) - pCvMatGetWidth(TemplateImg) + 1;
-  ResultHeight := pCvMatGetHeight(SourceImg) - pCvMatGetHeight(TemplateImg) + 1;
-
-  ResultImg := pCvMatImageCreate(ResultWidth, ResultHeight, CV_8UC3); // CV_32FC1
-
-  pcvmatchTemplate(SourceImg, TemplateImg, ResultImg, ord(TM_CCOEFF_NORMED),TemplateImg);
-  Result := ResultImg;
-end;
-
 function DrawRectangleOnMatch(const SourceImg, ResultImg: pCvMat_t; const TemplateImg: pCvMat_t;
   threshold: single): double;
 var
   MinVal, MaxVal: double;
   MinLoc, MaxLoc: pCvPoint_t;
-  ppts: pCvPoint_t;
-  pts: CvPointS;
-  windowName: string;
-  cvstr: CvString_t;
-  Bitmap: TBitmap;
+ winame1,winame2,winame3: CvString_t;
 begin
-  result:=0;
-
-  MinLoc := pCvPointCreate();
-  MaxLoc := pCvPointCreate();
-  pcvminMaxLoc(ResultImg, @MinVal, @MaxVal, MinLoc, MaxLoc, nil);
-  Result := MaxVal;
-//  if MaxVal > threshold then
-//  begin
-//    pCvPointToStruct(MaxLoc, @pts);
-//    ppts := cvPoint_(pts.x + pCvMatGetWidth(TemplateImg), pts.y + pCvMatGetHeight(TemplateImg));
-//    pcvrectangle(SourceImg, MaxLoc, ppts, cvScalar_(0, 255, 0, 0), 4, 8, 0);
-
-//    Bitmap := TBitmap.Create;
-//    try
-//      Bitmap.Width := pCvMatGetWidth(SourceImg);
-//      Bitmap.Height := pCvMatGetHeight(SourceImg);
-//      Bitmap.PixelFormat := pf24bit;
-
-//      MatImage2Bitmap(SourceImg, Bitmap);
-//      image.Picture.Assign(Bitmap);
-
-//    finally
-//      Bitmap.Free;
-//    end;
-
-//  end;
-end;
-
-function GetBoundingBoxes(ResultImg, TemplateImg: pCvMat_t; threshold: double): TList<TDetection>;
-var
-  x, y, i, j: Integer;
-  fX, fY: Integer;
-  conf: single;
-  scores: pCvMat_t;
-  outColor: pCvMat_t;
-  dptr: UInt64;
-  outptr: UInt64;
-  outW, outH: Integer;
-  detections: TList<TDetection>;
-  detect: TDetection;
-  matdims: array [0 .. 3] of Integer;
-  minclassscore, maxclassscore: double;
-  cx, cy, rw, rh: single;
-  MaxLoc: pCvPoint_t;
-  pts: CvPointS;
-
-  DesktopBitmap: TBitmap;
-
-begin
-  dptr := pCvMatGetData(ResultImg);
-  outW := pCvMatGetWidth(ResultImg);
-  outH := pCvMatGetHeight(ResultImg);
-  fX := pCvMatGetWidth(TemplateImg);
-  fY := pCvMatGetHeight(TemplateImg);
-  matdims[0] := 256;
-  matdims[1] := 256;
-
-  detections := TList<TDetection>.Create;
-
-  {
-    // creo q podria ser asi
-
-    //   MinLoc := pCvPointCreate();
-    MaxLoc := pCvPointCreate();
-
-
-    for j := 0 to outH - 1 do
-    begin
-    //conf := PSingle(dptr + 4 * SizeOf(Single))^;
-
-
-
-
-    // Slice heatmap of corresponding body's part.
-    outptr:=pCvMatGetDimPtr(ResultImg, 0, j);
-    scores:=pCvMatCreate(1, @matdims[0],  CV_32FC1, outptr);   // CV_32F(NO)  CV_32FC1   CV_8UC3 (NO)
-
-    //   test
-    //    outColor:=pCvMatCreateEmpty;
-    //    pCvMatConvertTo(scores, outColor, CV_8UC1);
-    //   pCvcvtColor(outColor, outColor, Ord(COLOR_RGB2BGR));
-    //
-    //          DesktopBitmap := TBitmap.Create;
-    //          DesktopBitmap.PixelFormat := pf24bit;
-    //          DesktopBitmap.Width:=300;
-    //          DesktopBitmap.Height:=300;
-    //        MatImage2Bitmap(outColor, DesktopBitmap);
-    //    form1.image3.Picture.Assign(DesktopBitmap);
-    //         fin test
-
-
-
-    // scores := pCvMatCreate(1, @matdims[0], CV_32FC1, (dptr + 5 * SizeOf(Single)));
-
-    // pcvminMaxLoc(scores, @minclassscore, @maxclassscore, nil, MaxLoc);
-    pcvminMaxLoc(scores, @minclassscore, @maxclassscore, nil, MaxLoc, nil);
-    if maxclassscore >= threshold then
-    begin
-
-
-    pCvPointToStruct(MaxLoc, @pts);
-    // ppts := cvPoint_(pts.x + pCvMatGetWidth(TemplateImg), pts.y + pCvMatGetHeight(TemplateImg));
-    // pcvrectangle(SourceImg, MaxLoc, ppts, cvScalar_(0, 255, 0, 0), 4, 8, 0);
-
-    detect := TDetection.Create;
-    //pCvPointToStruct(MaxLoc, @pts);
-    detect.confidence := maxclassscore;
-    detect.classId := pts.y;
-    //      cx := pts.x;
-    //      cy := pts.y;
-    //      rw := pts.x + pCvMatGetWidth(TemplateImg);
-    //      rh := pts.y + pCvMatGetHeight(TemplateImg);
-
-    detect.box.Left :=  pts.x;
-    detect.box.Top := pts.y;
-    detect.box.Width :=   pCvMatGetWidth(TemplateImg);
-    detect.box.Height := pCvMatGetHeight(TemplateImg);
-    detect.nsmValid := False;
-
-    detections.add(detect);
-
-    end;
-    pCvMatDelete(scores);
-    end;
-  }
-
-  for y := 0 to outH - 1 do // rows   = height
-    for x := 0 to outW - 1 do // cols   = width
-    begin
-      conf := PSingle(dptr + (x + (y * outW)) * sizeof(single))^;
-      // conf:=PSingle(dptr)^;
-      // dPtr:=dPtr+sizeof(single);
-      // dptr := dptr + outW * SizeOf(Single);
-      if conf >= threshold then
-      begin
-        // Slice heatmap of corresponding body's part.
-        // outptr:=pCvMatGetDimPtr(ResultImg, 0, j);
-        // scores:=pCvMatCreate(1, @matdims[0],  CV_32FC1, outptr);
-
-        // scores := pCvMatCreate(1, @matdims[0], CV_32FC1, (dptr + 5 * SizeOf(Single)));
-
-        // pcvminMaxLoc(scores, @minclassscore, @maxclassscore, nil, MaxLoc);
-        // begin
-        detect := TDetection.Create;
-        // pCvPointToStruct(MaxLoc, @pts);
-        detect.confidence := conf;
-        detect.classId := pts.y;
-
-        detect.box.Left := x;
-        detect.box.Top := y;
-        detect.box.Width := fX;
-        detect.box.Height := fY;
-        detect.nsmValid := False;
-
-        detections.add(detect);
-        // end;
-
-        pCvMatDelete(scores);
-      end;
-      // dptr := dptr + outW * SizeOf(Single);
-    end;
-
-  {
-    for j := 0 to outH - 1 do   //rows
-    begin
-    conf := PSingle(dptr + 4 * SizeOf(Single))^;
-
-    if conf >= threshold then
-    begin
-    // Slice heatmap of corresponding body's part.
-    // outptr:=pCvMatGetDimPtr(ResultImg, 0, j);
-    // scores:=pCvMatCreate(1, @matdims[0],  CV_32FC1, outptr);
-
-    scores := pCvMatCreate(1, @matdims[0], CV_32FC1, (dptr + 5 * SizeOf(Single)));
-
-    pcvminMaxLoc(scores, @minclassscore, @maxclassscore, nil, MaxLoc);
-    // begin
-    detect := TDetection.Create;
-    pCvPointToStruct(MaxLoc, @pts);
-    detect.confidence := maxclassscore;
-    detect.classId := pts.y;
-    cx := PSingle(dptr)^;
-    cy := PSingle(dptr + 1 * SizeOf(Single))^;
-    rw := PSingle(dptr + 2 * SizeOf(Single))^;
-    rh := PSingle(dptr + 3 * SizeOf(Single))^;
-
-    detect.box.Left := Round((cx - 0.5 * rw) * fX);
-    detect.box.Top := Round((cy - 0.5 * rh) * fY);
-    detect.box.Width := Round(rw * fX);
-    detect.box.Height := Round(rh * fY);
-    detect.nsmValid := False;
-
-    detections.add(detect);
-    // end;
-
-    pCvMatDelete(scores);
-    end;
-    dptr := dptr + outW * SizeOf(Single);
-    end;
-  }
-  Result := detections;
-end;
-
-// function DrawRectangleOnMultipleMatch(const SourceImg, ResultImg: pCvMat_t; const TemplateImg: pCvMat_t): pCvMat_t;
-// var
-//
-// detections: TList<TDetection>;
-// detect: TDetection;
-// threshold: Single;
-//
-// i,j: Integer;
-//
-// vecBoxes: PCvvector_Rect2d;
-// vecScores: PCvvector_float;
-// box2d: PCvRect2d_t;
-// scalparm: PCvScalar_t;
-// pta, ptb: pCvPoint_t;
-// vecNmsIndex: PCvvector_int;
-// nmsNr: Integer;
-// begin
-// threshold := 0.7;
-// detections :=    GetBoundingBoxes(ResultImg, TemplateImg, threshold );
-//
-// // Non Maxima Suppression (NMS) delete overlapped boxes with equal class
-// vecBoxes := pCvVectorRect2dCreate(detections.Count);
-// vecScores := pCvVectorfloatCreate(detections.Count);
-// i := 0;
-// for detect in detections do
-// begin
-// box2d := CvRect2d_(detect.box.Left, detect.box.Top, detect.box.Width, detect.box.Height);
-// pCvVectorRect2dSet(vecBoxes, i, box2d);
-// pCvVectorfloatSet(vecScores, i, detect.confidence);
-// Inc(i);
-// end;
-// vecNmsIndex := pCvVectorintCreate(0);
-// pCvdnn_NMSBoxes(vecBoxes, vecScores, threshold, NMS_THRES, vecNmsIndex);
-// nmsNr := pCvVectorintLength(vecNmsIndex);
-// for i := 0 to nmsNr - 1 do
-// begin
-// detections.Items[pCvVectorintGet(vecNmsIndex, i)].nsmValid := True;
-// end;
-//
-// pta := pCvPointCreate();
-// ptb := pCvPointCreate();
-// scalparm := cvScalar_(0, 255, 0, 0);
-// for detect in detections do
-// begin
-// // not valid after NMS calculation
-//
-//
-//
-//
-/// /    if detect.nsmValid = False then
-/// /      Continue;
-//
-//
-//
-//
-//
-// pta := cvPoint_(detect.box.TopLeft.x, detect.box.TopLeft.y, pta);
-// ptb := cvPoint_(detect.box.BottomRight.x, detect.box.BottomRight.y, ptb);
-// pcvrectangle(SourceImg, pta, ptb, scalparm, 2);
-//
-// // classLabel:=Format('%s %4.2f %%',  [classes.Strings[detect.classId], (detect.confidence*100)]);
-// // cvstr.pstr:=PAnsiChar(AnsiString(classLabel));
-// // labelSize:=pCvgetTextSize(@cvstr, Ord(FONT_HERSHEY_SIMPLEX), 0.8, 2, @baseline);
-// // pCvputText(img, @cvstr, pta, ord(FONT_HERSHEY_SIMPLEX), 0.8, scalparm);
-// end;
-//
-//
-// //cleanup
-// for i := 0 to detections.Count - 1 do
-// begin
-// TDetection(detections[i]).Free;  // Type cast
-// end;
-//
-//
-// Result := SourceImg;
-// end;
-//
-
-function PerformTemplateMatching(FileName: string;   threshold: single): double;
-var
-  DesktopBitmap: TBitmap;
-  SourceImg, TemplateImg, ResultImg: pCvMat_t;
-  TemplateFileName: string;
-begin
-  result:=0;
-
-  if FileName = '' then
-    exit;
-
-  DesktopBitmap := TBitmap.Create;
+  Result := 0;
   try
+//    MinLoc := pCvPointCreate();
+//    MaxLoc := pCvPointCreate();
+//    pcvminMaxLoc(ResultImg, @MinVal, @MaxVal, MinLoc, MaxLoc, nil);
+    pcvminMaxLoc(ResultImg, @MinVal, @MaxVal, nil, nil, nil);
+    Result := MaxVal;
+//outputdebugstring(pchar('minmaxloc '+maxval.ToString()));
+
+  // Display the result
+//   winame1.pstr:= PAnsiChar(AnsiString('template'));
+//   pCvimshow(@winame1, TemplateImg );
+//
+//   winame2.pstr:= PAnsiChar(AnsiString('SourceImg'));
+//   pCvimshow(@winame2, SourceImg );
+//
+//   winame3.pstr:= PAnsiChar(AnsiString('result'));
+//   pCvimshow(@winame3, ResultImg );
+
+
+  finally
+//    if assigned(MinLoc) then
+//      pCvPointDelete(MinLoc);
+//    if assigned(MaxLoc) then
+//      pCvPointDelete(MaxLoc);
+  end;
+end;
+
+function PerformTemplateMatching(TemplateImg: pCvMat_t; threshold: single): double;
+var
+  DesktopBitmap, tmp,tmp2,tmp3: TBitmap;
+  SourceImg, ResultImg, templateClone: pCvMat_t;
+  // GraySourceImg, GrayTemplateImg: pCvMat_t;
+  TemplateFileName: string;
+
+  ResultWidth, ResultHeight: Integer;
+begin
+  Result := 0;
+  DesktopBitmap := nil;
+  SourceImg := nil;
+  ResultImg := nil;
+
+  try
+    DesktopBitmap := TBitmap.Create;
+
     // Capture the desktop image
     CaptureDesktop(DesktopBitmap);
 
     // Convert the captured image to OpenCV Mat
-    // SourceImg:=pCvMatCreateEmpty();
-    // pCvMatConvertTo(SourceImg, SourceImg, CV_8U);
     SourceImg := pCvMatImageCreate(DesktopBitmap.Width, DesktopBitmap.Height, CV_8UC3);
     Bitmap2MatImage(SourceImg, DesktopBitmap);
 
-    // Load the template image
-    TemplateFileName := FileName;
-    TemplateImg := LoadImage(TemplateFileName);
-
     // Perform template matching
-    ResultImg := MatchTemplate(SourceImg, TemplateImg);
+    ResultWidth := pCvMatGetWidth(SourceImg) - pCvMatGetWidth(TemplateImg) + 1;
+    ResultHeight := pCvMatGetHeight(SourceImg) - pCvMatGetHeight(TemplateImg) + 1;
+
+    ResultImg := pCvMatImageCreate(ResultWidth, ResultHeight, CV_8UC3); // CV_32FC1   CV_8UC3
+
+    templateClone := pCvMatClone (TemplateImg);
+    pcvmatchTemplate(SourceImg, TemplateImg, ResultImg, ord(TM_CCOEFF_NORMED),templateClone);
+
+    if form1.CheckBox2.Checked then begin
+      tmp:=Tbitmap.Create;
+      tmp.PixelFormat := pf24bit;
+
+//      tmp.Width := pCvMatGetWidth(templateImg) ;
+//      tmp.Height :=  pCvMatGetHeight(templateImg);
+//      MatImage2Bitmap(templateImg,tmp);
+//      form1.imgTemplate.Picture.Assign(tmp)  ;
+
+      tmp.Width := pCvMatGetWidth(SourceImg) ;
+      tmp.Height :=  pCvMatGetHeight(SourceImg);
+      MatImage2Bitmap(SourceImg,tmp);
+      form1.imgDesktop.Picture.Assign(tmp)  ;
+
+//      tmp.Width := pCvMatGetWidth(ResultImg) ;
+//      tmp.Height :=  pCvMatGetHeight(ResultImg);
+//      MatImage2Bitmap(ResultImg,tmp);
+//      form1.imgResult.Picture.Assign(tmp)  ;
+    end;
+
+
+    // use grey images
+    // ResultImg := MatchTemplate(GraySourceImg, GrayTemplateImg);
 
     // Draw rectangle on match and display result
-    Result := DrawRectangleOnMatch(SourceImg, ResultImg, TemplateImg,  threshold);
+    Result := DrawRectangleOnMatch(SourceImg, ResultImg, TemplateImg, threshold);
 
-    // SourceImg :=DrawRectangleOnMultipleMatch(SourceImg, ResultImg, TemplateImg);    // not working
-
-
-
+  finally
     // Release images
 
-    pCvMatDelete(SourceImg);
-    pCvMatDelete(TemplateImg);
-    pCvMatDelete(ResultImg);
-  finally
-    DesktopBitmap.Free;
+    if assigned(ResultImg) then
+      pCvMatDelete(ResultImg);
+    if assigned(SourceImg) then
+      pCvMatDelete(SourceImg);
+    if assigned(templateClone) then
+      pCvMatDelete(templateClone);
+
+    if assigned(DesktopBitmap) then
+      DesktopBitmap.Free;
+
+    if assigned(tmp) then
+      tmp.Free;
   end;
 end;
 
