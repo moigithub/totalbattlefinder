@@ -70,6 +70,7 @@ var
 begin
   Result := 0;
   DesktopBitmap := nil;
+  tmp:=nil;
   SourceImg := nil;
   ResultImg := nil;
 

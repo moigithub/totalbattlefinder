@@ -4,8 +4,8 @@ object Form1: TForm1
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'totalbattle search stuff'
-  ClientHeight = 547
-  ClientWidth = 622
+  ClientHeight = 292
+  ClientWidth = 612
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -19,11 +19,10 @@ object Form1: TForm1
     Left = 0
     Top = 0
     Width = 649
-    Height = 547
+    Height = 292
     Align = alLeft
     Caption = 'Panel1'
     TabOrder = 0
-    ExplicitHeight = 256
     object Label1: TLabel
       Left = 8
       Top = 127
@@ -53,46 +52,46 @@ object Form1: TForm1
       Caption = 'Match %'
     end
     object imgTemplate: TImage
-      Left = 28
-      Top = 376
-      Width = 105
-      Height = 105
+      Left = 536
+      Top = 327
+      Width = 65
+      Height = 66
       Proportional = True
       Stretch = True
     end
     object imgDesktop: TImage
-      Left = 168
-      Top = 376
-      Width = 105
-      Height = 105
+      Left = 8
+      Top = 327
+      Width = 297
+      Height = 189
       Proportional = True
       Stretch = True
     end
     object imgResult: TImage
-      Left = 312
-      Top = 376
+      Left = 496
+      Top = 432
       Width = 105
       Height = 105
       Proportional = True
       Stretch = True
     end
     object Label4: TLabel
-      Left = 40
-      Top = 504
+      Left = 464
+      Top = 327
       Width = 47
       Height = 15
       Caption = 'template'
     end
     object Label5: TLabel
-      Left = 200
-      Top = 496
+      Left = 8
+      Top = 522
       Width = 85
       Height = 15
       Caption = 'desktop capture'
     end
     object Label6: TLabel
-      Left = 376
-      Top = 504
+      Left = 448
+      Top = 522
       Width = 29
       Height = 15
       Caption = 'result'
@@ -135,7 +134,7 @@ object Form1: TForm1
       Width = 56
       Height = 24
       MaxValue = 5000
-      MinValue = 300
+      MinValue = 100
       TabOrder = 3
       Value = 300
       OnChange = seIntervalChange
@@ -180,16 +179,16 @@ object Form1: TForm1
       Width = 57
       Height = 24
       MaxValue = 100
-      MinValue = 40
+      MinValue = 30
       TabOrder = 6
       Value = 65
     end
     object CheckBox2: TCheckBox
       Left = 8
-      Top = 328
+      Top = 304
       Width = 97
       Height = 17
-      Caption = 'CheckBox2'
+      Caption = 'show capture'
       TabOrder = 7
     end
   end

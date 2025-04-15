@@ -63,17 +63,11 @@ implementation
 {$R *.dfm}
 
 procedure playBeep();
-var
-  filepath, soundfile: string;
+
 begin
-  filepath := ExtractFilePath(Application.ExeName);
 
-  soundfile := filepath + FileName;
-  if FileExists(soundfile) then
-  begin
-    PlaySound(pchar(soundfile), 0, SND_ASYNC or SND_FILENAME);
-
-  end;
+  Winapi.Windows.Beep(800, 100);
+  // windows.sysutils.beep; // no funciona
 
 end;
 
@@ -99,7 +93,7 @@ end;
 
 procedure TForm1.Button1Click(Sender: TObject);
 var
-      sfile,tmp: CvString_t;
+  sfile, tmp: CvString_t;
   Image: TGraphic;
 begin
 
@@ -128,24 +122,22 @@ begin
 
         // Load the template image
         // TemplateFileName := FileName;
-//        self.TemplateImg := LoadImage(templateFileName  );
+        // self.TemplateImg := LoadImage(templateFileName  );
 
+        sfile.pstr := PAnsiChar(AnsiString(templateFileName));
 
+        TemplateImg := pCvimread(@sfile, ord(IMREAD_COLOR));
 
-  sfile.pstr := PAnsiChar(AnsiString(templateFileName));
+        if (pCvMatGetWidth(TemplateImg) = 0) then
+        begin
+          ShowMessage('Error: image not exists');
+          Exit;
+        end;
 
-  TemplateImg := pCvimread(@sfile, ord(IMREAD_COLOR));
-
-    if (pCvMatGetWidth(TemplateImg) = 0) then
-    begin
-      ShowMessage('Error: image not exists');
-      Exit;
-    end;
-
-//    tmp.pstr:= PAnsiChar(AnsiString('template'));
-//
-//
-//   pCvimshow(@tmp, TemplateImg );
+        // tmp.pstr:= PAnsiChar(AnsiString('template'));
+        //
+        //
+        // pCvimshow(@tmp, TemplateImg );
 
       finally
         Image.Free;
@@ -167,29 +159,27 @@ var
   threshold: single;
   tmp: CvString_t;
 begin
-    if TemplateImg = nil then
-    begin
-      Button1.Click;
-      exit;
-    end;
+  if TemplateImg = nil then
+  begin
+    Button1.Click;
+    Exit;
+  end;
 
-//        tmp.pstr:= PAnsiChar(AnsiString('template'));
-//
-//
-//   pCvimshow(@tmp, TemplateImg );
-
-
+  // tmp.pstr:= PAnsiChar(AnsiString('template'));
+  //
+  //
+  // pCvimshow(@tmp, TemplateImg );
 
   ProcessingLock.Enter; // Acquire the lock
   try
-//   outputdebugstring('btn3.click');
+    // outputdebugstring('btn3.click');
 
     threshold := seThreshold.Value / 100;
     matchCount := PerformTemplateMatching(TemplateImg, threshold);
 
     if not isInfinite(matchCount) then
     begin
-     Form1.Caption := floatTostr(matchCount);
+      Form1.Caption := floatTostr(matchCount);
 
       if matchCount > threshold then
       begin
@@ -205,12 +195,12 @@ end;
 
 procedure TForm1.CheckBox1Click(Sender: TObject);
 begin
-    if TemplateImg = nil then
-    begin
-      Button1.Click;
-      CheckBox1.Checked:=false;
-      exit;
-    end;
+  if TemplateImg = nil then
+  begin
+    Button1.Click;
+    CheckBox1.Checked := false;
+    Exit;
+  end;
 
   Timer1.Enabled := CheckBox1.Checked;
 end;
@@ -248,7 +238,7 @@ procedure TForm1.Timer1Timer(Sender: TObject);
 begin
 
   if IsAppFocused then
-    exit;
+    Exit;
 
   Button3.Click;
 end;
